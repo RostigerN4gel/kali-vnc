@@ -46,7 +46,6 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-USER seluser 
 #============================== # Generating the VNC password as seluser # So the service can be started with seluser #============================== 
 RUN mkdir -p ~/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
