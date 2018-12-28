@@ -40,13 +40,7 @@ RUN apt-get update -qqy \
     xfonts-scalable \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-#========= # fluxbox # A fast, lightweight and responsive window manager #========= 
-RUN apt-get update -qqy \
-  && apt-get -qqy install \
-    fluxbox \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-#============================== # zrdz Generating the VNC password as seluser # So the service can be started with seluser #============================== 
+#============================== # Generating the VNC password #============================== 
 RUN mkdir -p ~/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
 
