@@ -1,41 +1,53 @@
-# From the Kali linux base image
-FROM kalilinux/kali-linux-docker
+FROM kalilinux/kali-linux-docker:latest
 
-# Update and apt install programs
-RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get install -y \
- exploitdb \
- exploitdb-bin-sploits \
- git \
- gdb \
- gobuster \
- hashcat \
- hydra \
- man-db \
- minicom \
- nasm \
- nmap \
- sqlmap \
- sslscan \
- wordlists
+USER root 
+ENV DEBIAN_FRONTEND noninteractive
+ENV TERM xterm-256color
 
-# Create known_hosts for git cloning
-RUN touch /root/.ssh/known_hosts
-# Add host keys
-RUN ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN apt-get update -y && apt-get clean all
+RUN apt-get install -y software-properties-common && apt-get update -y && apt-get clean all
+RUN apt-get install -y git colordiff colortail unzip vim tmux xterm zsh curl && apt-get clean all
+RUN apt-get install -y kali-linux-all && apt-get clean all
 
-# Clone git repos 
-RUN git clone https://github.com/danielmiessler/SecLists.git /opt/seclists
-RUN git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/powersploit
+RUN git clone https://github.com/jasonchaffee/dotfiles.git /.dotfiles
 
-# Other installs
-RUN pip install pwntools
+RUN /.dotfiles/config install
 
-# Update ENV
-ENV PATH=$PATH:/opt/powersploit
+RUN chsh -s $(which zsh)
+RUN rm -f ${HOME}/.profile
+RUN su -s /bin/zsh -c '. ~/.zshrc' root
 
-# Set entrypoint and working directory
-WORKDIR /root/
+ #===== # VNC #===== 
+RUN apt-get update -qqy \
+    && apt-get -qqy install \
+    x11vnc \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+#================= # Locale settings #================= 
+ENV LANGUAGE en_US.UTF-8 ENV LANG en_US.UTF-8 
+RUN locale-gen en_US.UTF-8 \
+    && dpkg-reconfigure --frontend noninteractive locales \
+    && apt-get update -qqy \
+    && apt-get -qqy --no-install-recommends install \
+        language-pack-en \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+#======= # Fonts #======= 
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    fonts-ipafont-gothic \
+    xfonts-100dpi \
+    xfonts-75dpi \
+    xfonts-cyrillic \
+    xfonts-scalable \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Indicate we want to expose ports 80 and 443
-EXPOSE 80/tcp 443/tcp
+#========= # fluxbox # A fast, lightweight and responsive window manager #========= 
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    fluxbox \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+USER seluser 
+#============================== # Generating the VNC password as seluser # So the service can be started with seluser #============================== 
+RUN mkdir -p ~/.vnc \
+  && x11vnc -storepasswd secret ~/.vnc/passwd
+
+CMD ["/bin/zsh"]
