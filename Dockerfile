@@ -24,7 +24,7 @@ RUN touch /root/.ssh/known_hosts
 RUN ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
-# Clone git repos
+# Clone git repos 
 RUN git clone https://github.com/danielmiessler/SecLists.git /opt/seclists
 RUN git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/powersploit
 
