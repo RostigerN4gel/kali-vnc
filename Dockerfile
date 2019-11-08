@@ -1,6 +1,4 @@
 FROM kalilinux/kali-linux-docker:latest
-
-MAINTAINER RostigerN4gel "firestarter110@gmail.com" 
 #### ---------------------
 #### ---- USER, GROUP ----
 #### ---------------------
